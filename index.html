@@ -83,19 +83,16 @@
                 cat.setAttribute('animation', 'property: position; to: 0 0 0; dur: 2000; easing: easeInOutQuad; dir: alternate');
                 sun.setAttribute('visible', 'true');
                 light.setAttribute('light', 'intensity: 1.2; color: #FFF');
-                env.setAttribute('color', '#4CC3D9');
                 status.innerText = "Current Weather: Sunny ☀️";
             } else if (type === 'rainy') {
                 cat.setAttribute('animation', 'property: position; to: 0.5 0 0; dur: 2000; easing: easeInOutQuad; dir: alternate');
                 rain.setAttribute('visible', 'true');
                 light.setAttribute('light', 'intensity: 0.6; color: #889');
-                env.setAttribute('color', '#5D6D7E');
                 status.innerText = "Current Weather: Rainy 🌧️";
             } else if (type === 'night') {
                 cat.setAttribute('animation', 'property: position; to: 0.5 0 0; dur: 2000; easing: easeInOutQuad; dir: alternate');
                 night.setAttribute('visible', 'true');
                 light.setAttribute('light', 'intensity: 0.3; color: #555');
-                env.setAttribute('color', '#17202A');
                 status.innerText = "Current Weather: Night 🌙";
             }
         }
@@ -122,7 +119,7 @@
         <a-marker type="pattern" url="marker.patt">
 
             <a-entity id="cat" gltf-model="url(แมว.gltf)" scale="0.10 0.10 0.10" rotation="0 90 0" position="0 0 0"></a-entity>
-            <a-cylinder id="env-base" position="0 0 0" radius="1.5" height="0.1" color="#4CC3D9" opacity="0.9"></a-cylinder>
+            <a-cylinder id="env-base" position="0 0 0" radius="1.5" height="0.1" color="#90ee90" opacity="0.9"></a-cylinder>
             
             <a-cone position="-0.8 0.5 -0.5" color="#2ECC71" radius-bottom="0.3" height="0.8"></a-cone>
             <a-box position="0.5 0.3 0" color="#F1C40F" scale="0.6 0.6 0.6"></a-box>
@@ -155,3 +152,4 @@
     </a-scene>
 </body>
 </html>
+
