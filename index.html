@@ -1,60 +1,113 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Weather Custom Marker</title>
+    <title>AR Weather Station (Smart UI)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    
+
+    <style>
+        /* ตกแต่งปุ่มควบคุมให้ลอยอยู่บนหน้าจอ (UI Overlay) */
+        .ui-container {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 999; /* ให้ปุ่มอยู่เหนือภาพ AR */
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.1s, filter 0.2s;
+            cursor: pointer;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-sun { background: linear-gradient(135deg, #FFC107, #FF9800); }
+        .btn-rain { background: linear-gradient(135deg, #2196F3, #3F51B5); }
+        .btn-night { background: linear-gradient(135deg, #34495E, #2C3E50); }
+
+        /* ข้อความสถานะ */
+        #status-text {
+            position: fixed;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-shadow: 2px 2px 4px black;
+            font-size: 18px;
+            z-index: 999;
+            pointer-events: none;
+        }
+    </style>
+
     <script>
-        // Logic การควบคุมสภาพอากาศ (เหมือนเดิม)
-        AFRAME.registerComponent('weather-control', {
-            init: function () {
-                window.changeWeather = function(type) {
-                    var sun = document.querySelector('#sun');
-                    var rain = document.querySelector('#rain');
-                    var night = document.querySelector('#night');
-                    var light = document.querySelector('#dir-light');
-                    var env = document.querySelector('#env-base');
+        // ฟังก์ชันเปลี่ยนสภาพอากาศ
+        function setWeather(type) {
+            // อ้างอิงวัตถุใน A-Frame
+            const sun = document.querySelector('#sun');
+            const rain = document.querySelector('#rain');
+            const night = document.querySelector('#night');
+            const light = document.querySelector('#dir-light');
+            const env = document.querySelector('#env-base');
+            const status = document.querySelector('#status-text');
 
-                    // Reset
-                    sun.setAttribute('visible', 'false');
-                    rain.setAttribute('visible', 'false');
-                    night.setAttribute('visible', 'false');
+            // ตรวจสอบว่า AR Scene โหลดเสร็จหรือยัง
+            if (!sun || !rain) return;
 
-                    // Set Type
-                    if (type === 'sunny') {
-                        sun.setAttribute('visible', 'true');
-                        light.setAttribute('light', 'intensity: 1.2; color: #FFF');
-                        env.setAttribute('color', '#4CC3D9');
-                    } else if (type === 'rainy') {
-                        rain.setAttribute('visible', 'true');
-                        light.setAttribute('light', 'intensity: 0.6; color: #889');
-                        env.setAttribute('color', '#5D6D7E');
-                    } else if (type === 'night') {
-                        night.setAttribute('visible', 'true');
-                        light.setAttribute('light', 'intensity: 0.3; color: #555');
-                        env.setAttribute('color', '#17202A');
-                    }
-                }
+            // Reset (ซ่อนทั้งหมด)
+            sun.setAttribute('visible', 'false');
+            rain.setAttribute('visible', 'false');
+            night.setAttribute('visible', 'false');
+
+            // เปลี่ยนตามเงื่อนไข
+            if (type === 'sunny') {
+                sun.setAttribute('visible', 'true');
+                light.setAttribute('light', 'intensity: 1.2; color: #FFF');
+                env.setAttribute('color', '#4CC3D9');
+                status.innerText = "Current Weather: Sunny ☀️";
+            } else if (type === 'rainy') {
+                rain.setAttribute('visible', 'true');
+                light.setAttribute('light', 'intensity: 0.6; color: #889');
+                env.setAttribute('color', '#5D6D7E');
+                status.innerText = "Current Weather: Rainy 🌧️";
+            } else if (type === 'night') {
+                night.setAttribute('visible', 'true');
+                light.setAttribute('light', 'intensity: 0.3; color: #555');
+                env.setAttribute('color', '#17202A');
+                status.innerText = "Current Weather: Night 🌙";
             }
-        });
-
-        // Click Handler
-        AFRAME.registerComponent('click-handler', {
-            init: function () {
-                this.el.addEventListener('click', function (evt) {
-                    window.changeWeather(this.getAttribute('data-weather'));
-                });
-                this.el.addEventListener('touchstart', function (evt) {
-                    window.changeWeather(this.getAttribute('data-weather'));
-                });
-            }
-        });
+        }
     </script>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
+
+    <div id="status-text">Scan Custom Marker to Start</div>
     
+    <div class="ui-container">
+        <button class="btn btn-sun" onclick="setWeather('sunny')">☀️ SUN</button>
+        <button class="btn btn-rain" onclick="setWeather('rainy')">🌧️ RAIN</button>
+        <button class="btn btn-night" onclick="setWeather('night')">🌙 NIGHT</button>
+    </div>
+
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; patternRatio: 0.50" 
              renderer="logarithmicDepthBuffer: true;"
              vr-mode-ui="enabled: false">
@@ -62,45 +115,37 @@
         <a-entity id="dir-light" light="type: directional; intensity: 1;" position="1 2 1"></a-entity>
         <a-light type="ambient" intensity="0.5"></a-light>
 
-        <a-marker type="pattern" url="marker.patt" weather-control>
+        <a-marker type="pattern" url="marker.patt">
             
             <a-cylinder id="env-base" position="0 0 0" radius="1.5" height="0.1" color="#4CC3D9" opacity="0.9"></a-cylinder>
+            
             <a-cone position="-0.8 0.5 -0.5" color="#2ECC71" radius-bottom="0.3" height="0.8"></a-cone>
             <a-box position="0.5 0.3 0" color="#F1C40F" scale="0.6 0.6 0.6"></a-box>
 
             <a-entity id="sun" visible="true" position="0 2 -1">
-                <a-sphere color="yellow" radius="0.5"></a-sphere>
-                <a-ring color="orange" radius-inner="0.6" radius-outer="0.7"></a-ring>
+                <a-sphere color="#FFC107" radius="0.5" animation="property: rotation; to: 0 360 0; loop: true; dur: 5000"></a-sphere>
+                <a-ring color="#FF9800" radius-inner="0.6" radius-outer="0.7" animation="property: scale; dir: alternate; to: 1.1 1.1 1.1; loop: true; dur: 1000"></a-ring>
             </a-entity>
 
             <a-entity id="rain" visible="false" position="0 1.5 0">
                 <a-sphere color="grey" radius="0.4" position="0 0.5 0"></a-sphere>
+                <a-sphere color="grey" radius="0.3" position="-0.4 0.4 0.2"></a-sphere>
                 <a-entity>
-                    <a-cylinder color="blue" height="0.1" radius="0.02" position="-0.2 -0.2 0"></a-cylinder>
-                    <a-cylinder color="blue" height="0.1" radius="0.02" position="0.2 -0.4 0"></a-cylinder>
+                    <a-cylinder color="#2196F3" height="0.1" radius="0.02" position="-0.2 -0.2 0" animation="property: position; to: -0.2 -1 0; loop: true; dur: 500"></a-cylinder>
+                    <a-cylinder color="#2196F3" height="0.1" radius="0.02" position="0.2 -0.4 0" animation="property: position; to: 0.2 -1 0; loop: true; dur: 600"></a-cylinder>
+                    <a-cylinder color="#2196F3" height="0.1" radius="0.02" position="0 -0.3 0.2" animation="property: position; to: 0 -1 0.2; loop: true; dur: 400"></a-cylinder>
                 </a-entity>
             </a-entity>
 
             <a-entity id="night" visible="false" position="0 2 -1">
-                <a-sphere color="#DDD" radius="0.4"></a-sphere>
-            </a-entity>
-
-            <a-entity position="0 0.5 1.2" rotation="-45 0 0">
-                <a-box position="-0.8 0 0" scale="0.5 0.2 0.1" color="orange" class="clickable" data-weather="sunny" click-handler></a-box>
-                <a-text value="SUN" position="-0.8 0 0.06" align="center" scale="0.5 0.5 0.5"></a-text>
-
-                <a-box position="0 0 0" scale="0.5 0.2 0.1" color="blue" class="clickable" data-weather="rainy" click-handler></a-box>
-                <a-text value="RAIN" position="0 0 0.06" align="center" scale="0.5 0.5 0.5"></a-text>
-
-                <a-box position="0.8 0 0" scale="0.5 0.2 0.1" color="black" class="clickable" data-weather="night" click-handler></a-box>
-                <a-text value="NIGHT" position="0.8 0 0.06" align="center" color="white" scale="0.5 0.5 0.5"></a-text>
+                <a-sphere color="#ECEFF1" radius="0.4"></a-sphere>
+                <a-sphere color="yellow" radius="0.05" position="0.8 0.5 0"></a-sphere>
+                <a-sphere color="yellow" radius="0.05" position="-0.8 -0.5 0"></a-sphere>
             </a-entity>
 
         </a-marker>
 
-        <a-entity camera>
-            <a-entity cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
-        </a-entity>
+        <a-entity camera></a-entity>
 
     </a-scene>
 </body>
